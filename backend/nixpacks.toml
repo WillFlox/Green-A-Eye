@@ -16,11 +16,14 @@ dependsOn = ["install"]
 cmds = [
     "echo 'Backend build complete'",
     "# Intentar copiar archivos necesarios desde el directorio padre si están disponibles",
+    "# NOTA: En Railway con Root Directory = backend, puede que no haya acceso al directorio padre",
     "cp ../classes.json classes.json 2>/dev/null || echo 'classes.json no encontrado en parent, usando copia local'",
     "mkdir -p dataset || true",
-    "cp ../dataset/best_model.pth dataset/best_model.pth 2>/dev/null || cp ../best_model.pth best_model.pth 2>/dev/null || echo 'best_model.pth no encontrado en parent, el código lo buscará en runtime'",
+    "# Intentar copiar best_model.pth desde diferentes ubicaciones posibles",
+    "cp ../dataset/best_model.pth dataset/best_model.pth 2>/dev/null || cp ../best_model.pth dataset/best_model.pth 2>/dev/null || cp ../best_model.pth best_model.pth 2>/dev/null || echo 'best_model.pth no encontrado en parent, el código lo buscará en runtime'",
     "ls -la . || true",
-    "ls -la ../ || true || true"
+    "ls -la dataset || true",
+    "ls -la ../ 2>/dev/null || echo 'No se puede acceder al directorio padre'"
 ]
 
 [start]

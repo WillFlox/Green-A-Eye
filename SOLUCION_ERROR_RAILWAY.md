@@ -218,7 +218,34 @@ Si ves este error, significa que Railway está usando el Dockerfile (aunque el R
      - O déjalo vacío para que use el `Procfile` o `railway.json`
      - Guarda los cambios y redesplega
 
-8. **Contacta al soporte de Railway**:
+8. **Error: "No se encontró el archivo classes.json"**:
+   - Este error ocurre cuando Railway tiene el Root Directory configurado como `backend`, pero `classes.json` está en la raíz del proyecto, fuera de `backend/`
+   - **Solución**: 
+     - El archivo `classes.json` ha sido copiado a `backend/classes.json` para que esté disponible cuando Railway usa `backend/` como Root Directory
+     - El código en `predict.py` ha sido actualizado para buscar `classes.json` en múltiples ubicaciones, incluyendo el directorio `backend/`
+     - El archivo `backend/nixpacks.toml` intenta copiar `classes.json` desde el directorio padre durante el build si está disponible
+     - Asegúrate de que `backend/classes.json` esté en tu repositorio Git y se haya hecho commit
+     - Redesplega el servicio después de agregar el archivo
+
+9. **Error: "No se encontró el archivo best_model.pth"**:
+   - Este error ocurre cuando Railway tiene el Root Directory configurado como `backend`, pero `best_model.pth` está en `dataset/best_model.pth` en la raíz del proyecto, fuera de `backend/`
+   - **Solución**: 
+     - El código en `predict.py` ha sido actualizado para buscar `best_model.pth` en múltiples ubicaciones, incluyendo `/app/dataset/best_model.pth` (Railway), `backend/dataset/best_model.pth`, y `backend/best_model.pth`
+     - El archivo `backend/nixpacks.toml` intenta copiar `best_model.pth` desde el directorio padre durante el build si está disponible
+     - **⚠️ IMPORTANTE**: Asegúrate de que `best_model.pth` esté en tu repositorio Git:
+       - Verifica que NO esté en `.gitignore` (o está comentado)
+       - Si está en `.gitignore`, descoméntalo o elimínalo de `.gitignore`
+       - Haz commit y push del archivo al repositorio:
+         ```bash
+         git add dataset/best_model.pth best_model.pth
+         git commit -m "Agregar best_model.pth al repositorio"
+         git push
+         ```
+     - Si el archivo es muy grande (>100MB), considera usar **Git LFS** (ver `CONFIGURAR_GIT_LFS.md`)
+     - Si el archivo NO está en el repositorio, Railway NO lo tendrá disponible
+     - Redesplega el servicio después de agregar el archivo al repositorio
+
+10. **Contacta al soporte de Railway**:
    - Si nada funciona, contacta a Railway con los logs de error
 
 ---

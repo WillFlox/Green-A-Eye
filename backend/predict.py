@@ -57,12 +57,22 @@ def load_model(model_path: str = None):
         
         # Buscar el modelo en diferentes ubicaciones
         if model_path is None:
-            # Obtener el directorio base del proyecto
+            # Obtener el directorio del archivo actual (backend/)
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # Obtener el directorio base del proyecto (dos niveles arriba desde backend/)
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             
             model_paths = [
+                # En Railway cuando Root Directory es backend, /app es donde está el código
+                '/app/dataset/best_model.pth',  # En Railway desde la raíz del proyecto
+                '/app/best_model.pth',  # En Railway en la raíz
+                # En el mismo directorio que predict.py (backend/)
+                os.path.join(current_dir, 'dataset', 'best_model.pth'),  # backend/dataset/best_model.pth
+                os.path.join(current_dir, 'best_model.pth'),  # backend/best_model.pth
+                # Desde la raíz del proyecto (si está disponible)
                 os.path.join(base_dir, 'dataset', 'best_model.pth'),  # dataset/best_model.pth desde raíz
                 os.path.join(base_dir, 'best_model.pth'),  # best_model.pth en raíz
+                # Relativo al directorio actual de trabajo
                 'dataset/best_model.pth',  # Relativo al directorio actual
                 '../dataset/best_model.pth',  # Un nivel arriba
                 'best_model.pth'  # En directorio actual
