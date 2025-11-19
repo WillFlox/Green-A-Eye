@@ -10,13 +10,17 @@ dependsOn = ["setup"]
 cmds = [
     "# Instalar Git LFS",
     "git lfs install || echo 'Git LFS ya instalado o no disponible'",
-    "# IMPORTANTE: git lfs pull necesita ejecutarse desde la raíz del repositorio",
-    "# Si Root Directory es 'backend', necesitamos ir a la raíz primero",
-    "cd .. && git lfs pull || echo 'Git LFS pull falló, intentando desde directorio actual...'",
-    "git lfs pull || echo 'Git LFS pull falló desde directorio actual'",
-    "# Verificar que el archivo LFS se descargó correctamente (no es solo un puntero)",
-    "cd .. && (file dataset/best_model.pth 2>/dev/null || file best_model.pth 2>/dev/null || echo 'Verificando archivos LFS...') && (ls -lh dataset/best_model.pth 2>/dev/null || ls -lh best_model.pth 2>/dev/null || echo 'Archivos LFS no encontrados en raíz') && cd backend || cd .",
-    "pip3 install --no-cache-dir -r requirements.txt"
+    "# NOTA: git lfs pull puede fallar si no hay repositorio Git en Railway build",
+    "# Los archivos LFS deberían descargarse automáticamente durante el clone",
+    "# Intentar git lfs pull solo si hay repositorio Git",
+    "(cd .. && git lfs pull 2>/dev/null || echo 'Git LFS pull no disponible en build, archivos deberían estar disponibles desde clone') && cd backend || cd .",
+    "(git lfs pull 2>/dev/null || echo 'Git LFS pull no disponible desde directorio actual')",
+    "# Verificar que el archivo LFS está disponible (no es solo un puntero)",
+    "if [ -f ../dataset/best_model.pth ]; then SIZE=$(stat -f%z ../dataset/best_model.pth 2>/dev/null || stat -c%s ../dataset/best_model.pth 2>/dev/null || echo 0); echo \"../dataset/best_model.pth tamaño: $SIZE bytes\"; if [ \"$SIZE\" -lt 1024 ]; then echo 'ADVERTENCIA: ../dataset/best_model.pth es muy pequeño ($SIZE bytes), puede ser un puntero LFS'; fi; fi",
+    "if [ -f ../best_model.pth ]; then SIZE=$(stat -f%z ../best_model.pth 2>/dev/null || stat -c%s ../best_model.pth 2>/dev/null || echo 0); echo \"../best_model.pth tamaño: $SIZE bytes\"; if [ \"$SIZE\" -lt 1024 ]; then echo 'ADVERTENCIA: ../best_model.pth es muy pequeño ($SIZE bytes), puede ser un puntero LFS'; fi; fi",
+    "# Instalar dependencias Python del backend",
+    "# Usar pip con --break-system-packages para Nix (o crear venv si es posible)",
+    "python3 -m pip install --no-cache-dir --break-system-packages -r requirements.txt || pip install --no-cache-dir --break-system-packages -r requirements.txt"
 ]
 
 [phases.build]
