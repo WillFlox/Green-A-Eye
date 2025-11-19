@@ -49,11 +49,13 @@ El problema puede tener dos causas:
 4. Railway debería detectar automáticamente el `nixpacks.toml` desde el directorio `backend`
 5. Guarda los cambios
 
-### Paso 5: Configurar el Start Command
+### Paso 5: Configurar el Start Command (CRÍTICO)
 
-1. Busca **Start Command**
-2. Establece: `uvicorn api:app --host 0.0.0.0 --port $PORT`
-3. O déjalo vacío si ya está configurado en `railway.json` o `Procfile`
+1. Busca **Start Command** en Settings
+2. **⚠️ IMPORTANTE**: Si ves `cd backend && uvicorn ...`, elimínalo completamente
+3. Establece: `uvicorn api:app --host 0.0.0.0 --port $PORT` (sin `cd backend`)
+4. O déjalo vacío si ya está configurado correctamente en `railway.json` o `Procfile`
+5. **NOTA**: Railway puede estar usando un Start Command manual en lugar del de `railway.json` o `Procfile`
 
 ### Paso 6: Configurar Variables de Entorno
 
@@ -197,7 +199,24 @@ Si ves este error, significa que Railway está usando el Dockerfile (aunque el R
    - `best_model.pth` debe estar en `dataset/best_model.pth` o en la raíz como `best_model.pth`
    - El backend buscará estos archivos en múltiples ubicaciones durante la ejecución
 
-6. **Contacta al soporte de Railway**:
+6. **Error: "Build timed out"**:
+   - Este error ocurre cuando el build tarda demasiado (PyTorch es pesado y puede tardar varios minutos)
+   - **Solución**: 
+     - Es normal que el build tarde 5-10 minutos debido a PyTorch
+     - Asegúrate de que el Build Command esté vacío o solo tenga `pip install --no-cache-dir -r requirements.txt`
+     - Verifica que no haya comandos innecesarios en el build que aumenten el tiempo
+     - Si el build falla por timeout después de 10 minutos, Railway puede tener un límite más estricto
+     - Considera usar una versión más ligera de PyTorch si es posible, o desplegar en Render que tiene límites de tiempo más generosos
+
+7. **Error: Deploy command tiene "cd backend && uvicorn ..."**:
+   - Aunque `railway.json` y `Procfile` estén correctos, Railway puede tener un Start Command manual configurado en la interfaz web
+   - **Solución**:
+     - Ve a Railway Settings → Start Command
+     - Si ves `cd backend && uvicorn ...`, cámbialo a solo `uvicorn api:app --host 0.0.0.0 --port $PORT`
+     - O déjalo vacío para que use el `Procfile` o `railway.json`
+     - Guarda los cambios y redesplega
+
+8. **Contacta al soporte de Railway**:
    - Si nada funciona, contacta a Railway con los logs de error
 
 ---
