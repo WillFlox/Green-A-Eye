@@ -21,12 +21,21 @@ allowed_origins_str = os.getenv(
     "ALLOWED_ORIGINS",
     "http://localhost:3000,http://127.0.0.1:3000"
 )
-allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
+
+allowed_origins_env = [origin.strip() for origin in allowed_origins_str.split(",") if origin.strip()]
+
+# Si se establece ALLOWED_ORIGINS="*" permitimos cualquier origen (sin credenciales)
+if len(allowed_origins_env) == 1 and allowed_origins_env[0] == "*":
+    cors_allow_origins = ["*"]
+    cors_allow_credentials = False
+else:
+    cors_allow_origins = allowed_origins_env
+    cors_allow_credentials = True
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_origins=cors_allow_origins,
+    allow_credentials=cors_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
