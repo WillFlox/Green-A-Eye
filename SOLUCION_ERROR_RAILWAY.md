@@ -41,11 +41,13 @@ El problema puede tener dos causas:
 4. **NOTA**: Si Railway sigue detectando el Dockerfile, el archivo `backend/Dockerfile` ha sido renombrado a `Dockerfile.backup` para evitar que Railway lo use automáticamente
 5. Guarda los cambios
 
-### Paso 4: Configurar el Build Command (Opcional)
+### Paso 4: Configurar el Build Command (IMPORTANTE)
 
 1. En la misma sección de Settings, busca **Build Command**
-2. Puedes dejarlo vacío para que Railway lo detecte automáticamente desde `nixpacks.toml`
-3. O establece: `pip install --no-cache-dir -r requirements.txt`
+2. **⚠️ CRÍTICO**: Si hay algún comando que incluya `cd backend`, elimínalo o déjalo vacío
+3. El Build Command debe estar vacío o ser: `pip install --no-cache-dir -r requirements.txt` (sin `cd backend`)
+4. Railway debería detectar automáticamente el `nixpacks.toml` desde el directorio `backend`
+5. Guarda los cambios
 
 ### Paso 5: Configurar el Start Command
 
@@ -145,16 +147,20 @@ Si el despliegue falla porque no encuentra estos archivos, necesitarás ajustar 
 
 ### Error: "cd: can't cd to backend"
 
-Si ves este error (`cd backend && pip install -r requirements.txt`), significa que Railway está usando el `nixpacks.toml` de la raíz en lugar del `nixpacks.toml` del directorio `backend`.
+Si ves este error (`cd backend && pip install -r requirements.txt`), significa que Railway está intentando ejecutar comandos que incluyen `cd backend`, pero cuando el Root Directory es `backend`, ya estás en ese directorio.
 
 **Solución**:
 1. El archivo `nixpacks.toml` en la raíz ha sido renombrado a `nixpacks.toml.root.backup` para evitar conflictos
-2. Cuando el Root Directory está configurado como `backend`, Railway debería usar solo `backend/nixpacks.toml`
-3. Verifica en Railway Settings que el **Root Directory** esté configurado como `backend`
-4. Verifica que el **Builder** esté configurado como **NIXPACKS** (no Dockerfile)
+2. El archivo `backend/nixpacks.toml` ha sido recreado con los comandos correctos (sin `cd backend`)
+3. Verifica en Railway Settings:
+   - **Root Directory**: Debe estar configurado como `backend`
+   - **Builder**: Debe estar configurado como **NIXPACKS** (no Dockerfile)
+   - **Build Command**: Debe estar **vacío** o ser `pip install --no-cache-dir -r requirements.txt` (sin `cd backend`)
+   - **Start Command**: Debe ser `uvicorn api:app --host 0.0.0.0 --port $PORT` (sin `cd backend`)
+4. Guarda todos los cambios
 5. Redesplega el servicio
 
-**Alternativa**: Si necesitas usar el `nixpacks.toml` de la raíz, cambia el Root Directory a la raíz del proyecto (`.` o vacío).
+**⚠️ IMPORTANTE**: Si hay algún Build Command en Railway que incluya `cd backend`, elimínalo completamente. Railway usará el `backend/nixpacks.toml` automáticamente cuando el Root Directory sea `backend`.
 
 ### Error: "COPY ../classes.json: not found"
 
