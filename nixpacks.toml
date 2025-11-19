@@ -1,16 +1,17 @@
 # Configuración de Nixpacks para Railway
-# Este archivo fuerza a Railway a usar NIXPACKS y construir solo el backend
-# NOTA: Si usas Root Directory como "backend", este archivo NO se usará.
-# En su lugar, Railway usará backend/nixpacks.toml
+# Este archivo se usa cuando Railway tiene el Root Directory configurado como "." (raíz)
+# IMPORTANTE: Cambia el Root Directory en Railway de "backend" a "." (o vacío)
 
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip"]
+nixPkgs = ["python311", "python311Packages.pip", "git-lfs"]
 
 [phases.install]
 dependsOn = ["setup"]
 cmds = [
-    "python3 --version",
-    "pip3 --version",
+    "# Instalar Git LFS y descargar archivos LFS desde la raíz del repositorio",
+    "git lfs install || echo 'Git LFS ya instalado o no disponible'",
+    "git lfs pull || echo 'Git LFS pull falló o no hay archivos LFS'",
+    "# Instalar dependencias Python del backend",
     "pip3 install --no-cache-dir -r backend/requirements.txt"
 ]
 
@@ -18,12 +19,15 @@ cmds = [
 dependsOn = ["install"]
 cmds = [
     "echo 'Backend build complete'",
+    "# Verificar que los archivos necesarios estén disponibles",
+    "ls -la dataset/best_model.pth || ls -la best_model.pth || echo 'Verificando best_model.pth...'",
+    "ls -la classes.json || echo 'Verificando classes.json...'",
+    "# Copiar archivos al backend si es necesario",
     "mkdir -p backend/dataset || true",
-    "cp classes.json backend/classes.json || echo 'classes.json not found'",
-    "cp dataset/best_model.pth backend/dataset/best_model.pth 2>/dev/null || cp best_model.pth backend/best_model.pth 2>/dev/null || echo 'best_model.pth not found'"
+    "cp classes.json backend/classes.json 2>/dev/null || echo 'classes.json no encontrado'",
+    "cp dataset/best_model.pth backend/dataset/best_model.pth 2>/dev/null || cp best_model.pth backend/best_model.pth 2>/dev/null || echo 'best_model.pth no encontrado, el código lo buscará en runtime'"
 ]
 
 [start]
 cmd = "cd backend && uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"
-
 
