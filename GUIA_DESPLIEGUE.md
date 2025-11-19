@@ -9,6 +9,12 @@ Esta guía te ayudará a desplegar tu aplicación Green A-Eye en producción.
 3. [Configuración de Variables de Entorno](#variables)
 4. [Opciones de Plataformas](#plataformas)
 
+## 🚀 Guías Rápidas
+
+Para instrucciones paso a paso más detalladas, consulta:
+- **📘 [DESPLIEGUE_BACKEND_CLOUD.md](DESPLIEGUE_BACKEND_CLOUD.md)** - Guía completa para desplegar el backend en Railway o Render
+- **⚙️ [CONFIGURAR_VERCEL.md](CONFIGURAR_VERCEL.md)** - Cómo configurar variables de entorno en Vercel
+
 ---
 
 ## 🎨 Despliegue del Frontend (Next.js) {#frontend}
@@ -41,6 +47,7 @@ Vercel es la plataforma oficial de Next.js y ofrece despliegue gratuito.
 4. **Configurar variables de entorno en Vercel:**
    - Ve a Settings → Environment Variables
    - Agrega: `NEXT_PUBLIC_API_URL=https://tu-backend-url.com`
+   - **📖 Para instrucciones detalladas, consulta: [CONFIGURAR_VERCEL.md](CONFIGURAR_VERCEL.md)**
 
 #### Ventajas:
 - ✅ Gratis para proyectos personales
@@ -125,43 +132,15 @@ El backend es más complejo porque requiere PyTorch y el modelo entrenado.
 
 Railway soporta Python y puede manejar modelos de ML.
 
-#### Pasos:
+**📖 Para instrucciones paso a paso detalladas, consulta: [DESPLIEGUE_BACKEND_CLOUD.md](DESPLIEGUE_BACKEND_CLOUD.md)**
 
-1. **Crear archivo `Procfile` en la carpeta `backend/`:**
-   ```
-   web: uvicorn api:app --host 0.0.0.0 --port $PORT
-   ```
-
-2. **Crear archivo `runtime.txt` en `backend/`:**
-   ```
-   python-3.11
-   ```
-
-3. **Crear archivo `railway.json` en la raíz:**
-   ```json
-   {
-     "$schema": "https://railway.app/railway.schema.json",
-     "build": {
-       "builder": "NIXPACKS"
-     },
-     "deploy": {
-       "startCommand": "cd backend && uvicorn api:app --host 0.0.0.0 --port $PORT",
-       "restartPolicyType": "ON_FAILURE",
-       "restartPolicyMaxRetries": 10
-     }
-   }
-   ```
-
-4. **Subir archivos necesarios:**
-   - Asegúrate de que `best_model.pth` esté en `dataset/best_model.pth`
-   - Asegúrate de que `classes.json` esté en la raíz
-
-5. **Desplegar en Railway:**
-   - Ve a [railway.app](https://railway.app)
-   - Crea un nuevo proyecto
-   - Conecta tu repositorio Git
-   - Railway detectará automáticamente Python
-   - Configura el comando de inicio
+**Resumen rápido:**
+1. El archivo `railway.json` ya está configurado en tu proyecto
+2. Ve a [railway.app](https://railway.app) y crea un nuevo proyecto
+3. Conecta tu repositorio Git
+4. Railway detectará automáticamente la configuración
+5. Configura la variable `ALLOWED_ORIGINS` con la URL de tu frontend en Vercel
+6. Obtén la URL del backend y configúrala en Vercel como `NEXT_PUBLIC_API_URL`
 
 #### Nota sobre el modelo:
 - El archivo `best_model.pth` puede ser grande (>100MB)
@@ -172,26 +151,15 @@ Railway soporta Python y puede manejar modelos de ML.
 
 ### Opción 2: Render
 
-#### Pasos:
+**📖 Para instrucciones paso a paso detalladas, consulta: [DESPLIEGUE_BACKEND_CLOUD.md](DESPLIEGUE_BACKEND_CLOUD.md)**
 
-1. **Crear archivo `render.yaml` en la raíz:**
-   ```yaml
-   services:
-     - type: web
-       name: green-a-eye-backend
-       env: python
-       buildCommand: cd backend && pip install -r requirements.txt
-       startCommand: cd backend && uvicorn api:app --host 0.0.0.0 --port $PORT
-       envVars:
-         - key: PYTHON_VERSION
-           value: 3.11.0
-   ```
-
-2. **Desplegar:**
-   - Ve a [render.com](https://render.com)
-   - Crea un nuevo Web Service
-   - Conecta tu repositorio
-   - Render usará el archivo `render.yaml`
+**Resumen rápido:**
+1. El archivo `render.yaml` ya está configurado en tu proyecto
+2. Ve a [render.com](https://render.com) y crea un nuevo Web Service
+3. Conecta tu repositorio Git
+4. Render detectará automáticamente el archivo `render.yaml`
+5. Configura la variable `ALLOWED_ORIGINS` con la URL de tu frontend en Vercel
+6. Obtén la URL del backend y configúrala en Vercel como `NEXT_PUBLIC_API_URL`
 
 ---
 
@@ -344,11 +312,13 @@ docker push TU-ACCOUNT.dkr.ecr.REGION.amazonaws.com/green-a-eye-backend:latest
 
 ## 🔧 Configuración de Variables de Entorno {#variables}
 
-### Frontend (.env.local o en la plataforma):
+### Frontend (.env.local o en Vercel):
 
 ```bash
 NEXT_PUBLIC_API_URL=https://tu-backend-url.com
 ```
+
+**📖 Para instrucciones detalladas sobre cómo configurar esto en Vercel, consulta: [CONFIGURAR_VERCEL.md](CONFIGURAR_VERCEL.md)**
 
 ### Backend:
 

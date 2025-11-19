@@ -1502,7 +1502,7 @@ export default function Classifier() {
             className="mb-4 p-4 bg-yellow-100/80 dark:bg-yellow-900/40 border-2 border-yellow-400 dark:border-yellow-700 rounded-xl shadow-lg backdrop-blur-sm"
           >
             <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
-            ⚠️ El servidor backend no está disponible. Asegúrate de ejecutar el backend en http://localhost:8000
+            ⚠️ El servidor backend no está disponible. {API_URL.includes('localhost') ? 'Asegúrate de ejecutar el backend en http://localhost:8000' : `Verifica que el backend esté desplegado en ${API_URL}`}
           </p>
           </motion.div>
       )}

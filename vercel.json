@@ -3,12 +3,6 @@
   "outputDirectory": ".next",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://tu-backend-url.com/:path*"
-    }
-  ]
+  "framework": "nextjs"
 }
 

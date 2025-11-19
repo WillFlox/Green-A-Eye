@@ -9,6 +9,8 @@ services:
         value: 3.11.0
       - key: ALLOWED_ORIGINS
         value: https://tu-frontend.vercel.app,https://tu-dominio.com
+        # IMPORTANTE: Reemplaza con tu URL real de Vercel
+        # Ejemplo: https://green-a-eye.vercel.app
       - key: PORT
         sync: false
 
