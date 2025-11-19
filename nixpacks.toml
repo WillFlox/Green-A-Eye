@@ -3,7 +3,7 @@
 # IMPORTANTE: Cambia el Root Directory en Railway de "backend" a "." (o vacío)
 
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip", "git-lfs"]
+nixPkgs = ["python311", "python311Packages.pip", "git-lfs", "curl"]
 
 [phases.install]
 dependsOn = ["setup"]
@@ -26,14 +26,17 @@ cmds = [
 dependsOn = ["install"]
 cmds = [
     "echo 'Backend build complete'",
-    "# Verificar que los archivos necesarios estén disponibles",
-    "ls -la dataset/best_model.pth || ls -la best_model.pth || echo 'Verificando best_model.pth...'",
+    "# Descargar siempre el modelo desde GitHub para evitar problemas con Git LFS en Railway",
+    "mkdir -p dataset",
+    "echo 'Descargando best_model.pth desde GitHub...'",
+    \"curl -L 'https://raw.githubusercontent.com/WillFlox/Green-A-Eye/main/best_model.pth' -o dataset/best_model.pth\",
+    "# Verificar que el modelo se descargó correctamente",
+    "ls -lh dataset/best_model.pth || echo 'ERROR: No se pudo descargar dataset/best_model.pth'",
     "ls -la classes.json || echo 'Verificando classes.json...'",
     "# Copiar archivos al backend para que estén disponibles",
     "mkdir -p backend/dataset || true",
     "cp classes.json backend/classes.json 2>/dev/null || echo 'classes.json no encontrado, usando copia en backend/'",
-    "# Copiar best_model.pth a backend/ para que esté disponible cuando el código lo busque",
-    "cp dataset/best_model.pth backend/best_model.pth 2>/dev/null || cp best_model.pth backend/best_model.pth 2>/dev/null || echo 'best_model.pth no encontrado en raíz, verificando backend/...'",
+    "cp dataset/best_model.pth backend/best_model.pth 2>/dev/null || echo 'best_model.pth no encontrado en dataset/',",
     "cp dataset/best_model.pth backend/dataset/best_model.pth 2>/dev/null || echo 'Intentando copiar a backend/dataset/...'",
     "# Verificar que se copió correctamente",
     "ls -la backend/best_model.pth || ls -la backend/dataset/best_model.pth || echo 'best_model.pth no está en backend/, el código lo buscará en otras ubicaciones'"
