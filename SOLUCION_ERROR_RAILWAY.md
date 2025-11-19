@@ -11,7 +11,11 @@ ERROR: failed to build: failed to solve: process "/bin/bash -ol pipefail -c cd b
 
 ## 🔍 Causa
 
-Railway está intentando construir todo el proyecto (frontend Next.js + backend Python) desde la raíz del repositorio. Detecta el proyecto Next.js primero y trata de usar comandos de Node.js, pero luego intenta ejecutar comandos de Python que no están disponibles en ese contexto.
+El problema puede tener dos causas:
+
+1. **Railway está usando el Dockerfile en lugar de NIXPACKS**: Railway detecta automáticamente el `Dockerfile` en el directorio `backend/` y lo usa, pero el Dockerfile intenta copiar archivos desde el directorio padre (`../classes.json`, `../dataset/best_model.pth`), lo cual no funciona cuando el Root Directory está configurado como `backend`.
+
+2. **Railway está intentando construir todo el proyecto**: Railway detecta el proyecto Next.js primero y trata de usar comandos de Node.js, pero luego intenta ejecutar comandos de Python que no están disponibles en ese contexto.
 
 ## ✅ Solución: Configurar el Root Directory en Railway
 
@@ -34,7 +38,8 @@ Railway está intentando construir todo el proyecto (frontend Next.js + backend 
 1. En la misma sección de Settings, busca **Builder**
 2. **IMPORTANTE**: Asegúrate de que esté configurado como **NIXPACKS** (no Dockerfile)
 3. Si está configurado como Dockerfile, cámbialo a **NIXPACKS**
-4. Guarda los cambios
+4. **NOTA**: Si Railway sigue detectando el Dockerfile, el archivo `backend/Dockerfile` ha sido renombrado a `Dockerfile.backup` para evitar que Railway lo use automáticamente
+5. Guarda los cambios
 
 ### Paso 4: Configurar el Build Command (Opcional)
 
@@ -138,6 +143,19 @@ Si el despliegue falla porque no encuentra estos archivos, necesitarás ajustar 
 
 ## 🆘 Si Aún No Funciona
 
+### Error: "COPY ../classes.json: not found"
+
+Si ves este error, significa que Railway está usando el Dockerfile (aunque el Root Directory esté configurado como `backend`). 
+
+**Solución**:
+1. El archivo `backend/Dockerfile` ha sido renombrado a `Dockerfile.backup` para evitar que Railway lo use
+2. Asegúrate de que el Builder esté configurado como **NIXPACKS** (no Dockerfile)
+3. Redesplega el servicio
+
+**Alternativa**: Si necesitas usar Dockerfile, necesitas cambiar el Root Directory a la raíz del proyecto y modificar el Dockerfile para que copie correctamente los archivos desde el contexto correcto.
+
+### Otros problemas:
+
 1. **Revisa los logs de Railway**:
    - Ve a la pestaña **Deployments**
    - Haz clic en el último despliegue
@@ -149,7 +167,12 @@ Si el despliegue falla porque no encuentra estos archivos, necesitarás ajustar 
 3. **Verifica las dependencias**:
    - Revisa que `backend/requirements.txt` tenga todas las dependencias necesarias
 
-4. **Contacta al soporte de Railway**:
+4. **Verifica que los archivos necesarios estén en el repositorio**:
+   - `classes.json` debe estar en la raíz del repositorio
+   - `best_model.pth` debe estar en `dataset/best_model.pth` o en la raíz como `best_model.pth`
+   - El backend buscará estos archivos en múltiples ubicaciones durante la ejecución
+
+5. **Contacta al soporte de Railway**:
    - Si nada funciona, contacta a Railway con los logs de error
 
 ---

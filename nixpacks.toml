@@ -1,5 +1,7 @@
 # Configuración de Nixpacks para Railway
 # Este archivo fuerza a Railway a usar NIXPACKS y construir solo el backend
+# NOTA: Si usas Root Directory como "backend", este archivo NO se usará.
+# En su lugar, Railway usará backend/nixpacks.toml
 
 [phases.setup]
 nixPkgs = ["python311", "pip", "nixpkgs.python311Packages.pip"]
@@ -12,7 +14,12 @@ cmds = [
 
 [phases.build]
 dependsOn = ["install"]
-cmds = ["echo 'Backend build complete'"]
+cmds = [
+    "echo 'Backend build complete'",
+    "mkdir -p backend/dataset || true",
+    "cp classes.json backend/classes.json || echo 'classes.json not found'",
+    "cp dataset/best_model.pth backend/dataset/best_model.pth 2>/dev/null || cp best_model.pth backend/best_model.pth 2>/dev/null || echo 'best_model.pth not found'"
+]
 
 [start]
 cmd = "cd backend && uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"
