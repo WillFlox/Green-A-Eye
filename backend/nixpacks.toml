@@ -2,12 +2,14 @@
 # Este archivo se usa cuando Railway tiene el Root Directory configurado como "backend"
 
 [phases.setup]
-nixPkgs = ["python311", "pip"]
+nixPkgs = ["python311", "python311Packages.pip"]
 
 [phases.install]
 dependsOn = ["setup"]
 cmds = [
-    "pip install --no-cache-dir -r requirements.txt"
+    "python3 --version",
+    "pip3 --version",
+    "pip3 install --no-cache-dir -r requirements.txt"
 ]
 
 [phases.build]
@@ -24,7 +26,4 @@ cmds = [
 
 [start]
 cmd = "uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"
-
-[variables]
-PYTHON_VERSION = "3.11"
 

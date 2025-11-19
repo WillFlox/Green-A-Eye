@@ -161,18 +161,24 @@ Si ves este error, significa que Railway está usando el Dockerfile (aunque el R
    - Haz clic en el último despliegue
    - Revisa los logs para ver errores específicos
 
-2. **Verifica que Python esté configurado correctamente**:
-   - Asegúrate de que `backend/runtime.txt` existe con `python-3.11.0`
+2. **Error: "mise ERROR failed to install core:python@3.11.0"**:
+   - Este error ocurre cuando NIXPACKS intenta usar `mise` para instalar Python desde `runtime.txt`
+   - **Solución**: El archivo `runtime.txt` ha sido actualizado de `python-3.11.0` a `python-3.11`
+   - El `nixpacks.toml` ahora usa directamente los paquetes de Nix (`python311`) en lugar de depender de `mise`
+   - Si el error persiste, puedes eliminar temporalmente `runtime.txt` ya que NIXPACKS detectará Python automáticamente
 
-3. **Verifica las dependencias**:
+3. **Verifica que Python esté configurado correctamente**:
+   - El archivo `backend/runtime.txt` existe con `python-3.11` (no `python-3.11.0`)
+
+4. **Verifica las dependencias**:
    - Revisa que `backend/requirements.txt` tenga todas las dependencias necesarias
 
-4. **Verifica que los archivos necesarios estén en el repositorio**:
+5. **Verifica que los archivos necesarios estén en el repositorio**:
    - `classes.json` debe estar en la raíz del repositorio
    - `best_model.pth` debe estar en `dataset/best_model.pth` o en la raíz como `best_model.pth`
    - El backend buscará estos archivos en múltiples ubicaciones durante la ejecución
 
-5. **Contacta al soporte de Railway**:
+6. **Contacta al soporte de Railway**:
    - Si nada funciona, contacta a Railway con los logs de error
 
 ---
