@@ -143,6 +143,19 @@ Si el despliegue falla porque no encuentra estos archivos, necesitarás ajustar 
 
 ## 🆘 Si Aún No Funciona
 
+### Error: "cd: can't cd to backend"
+
+Si ves este error (`cd backend && pip install -r requirements.txt`), significa que Railway está usando el `nixpacks.toml` de la raíz en lugar del `nixpacks.toml` del directorio `backend`.
+
+**Solución**:
+1. El archivo `nixpacks.toml` en la raíz ha sido renombrado a `nixpacks.toml.root.backup` para evitar conflictos
+2. Cuando el Root Directory está configurado como `backend`, Railway debería usar solo `backend/nixpacks.toml`
+3. Verifica en Railway Settings que el **Root Directory** esté configurado como `backend`
+4. Verifica que el **Builder** esté configurado como **NIXPACKS** (no Dockerfile)
+5. Redesplega el servicio
+
+**Alternativa**: Si necesitas usar el `nixpacks.toml` de la raíz, cambia el Root Directory a la raíz del proyecto (`.` o vacío).
+
 ### Error: "COPY ../classes.json: not found"
 
 Si ves este error, significa que Railway está usando el Dockerfile (aunque el Root Directory esté configurado como `backend`). 
