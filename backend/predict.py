@@ -87,7 +87,9 @@ def load_model(model_path: str = None):
                 raise FileNotFoundError(f"No se encontró el archivo best_model.pth. Buscado en: {model_paths}")
         
         # Cargar los pesos
-        checkpoint = torch.load(model_path, map_location=_device)
+        # PyTorch 2.6+ cambió el valor por defecto de weights_only a True
+        # Necesitamos establecerlo en False para cargar modelos antiguos
+        checkpoint = torch.load(model_path, map_location=_device, weights_only=False)
         _model.load_state_dict(checkpoint)
         _model.to(_device)
         _model.eval()
