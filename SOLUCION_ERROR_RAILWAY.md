@@ -200,13 +200,15 @@ Si ves este error, significa que Railway está usando el Dockerfile (aunque el R
    - El backend buscará estos archivos en múltiples ubicaciones durante la ejecución
 
 6. **Error: "Build timed out"**:
-   - Este error ocurre cuando el build tarda demasiado (PyTorch es pesado y puede tardar varios minutos)
+   - Este error ocurre cuando el build tarda demasiado (PyTorch con CUDA es muy pesado ~2GB+ y puede tardar 10+ minutos)
    - **Solución**: 
-     - Es normal que el build tarde 5-10 minutos debido a PyTorch
+     - El archivo `requirements.txt` ha sido actualizado para usar PyTorch CPU-only (mucho más ligero ~200MB)
+     - Esto reduce significativamente el tiempo de build de ~10 minutos a ~3-5 minutos
+     - El código ya está preparado para usar CPU si no hay GPU disponible (`torch.device('cuda' if torch.cuda.is_available() else 'cpu')`)
      - Asegúrate de que el Build Command esté vacío o solo tenga `pip install --no-cache-dir -r requirements.txt`
      - Verifica que no haya comandos innecesarios en el build que aumenten el tiempo
-     - Si el build falla por timeout después de 10 minutos, Railway puede tener un límite más estricto
-     - Considera usar una versión más ligera de PyTorch si es posible, o desplegar en Render que tiene límites de tiempo más generosos
+     - Si el build sigue fallando por timeout después de optimizar, Railway puede tener un límite muy estricto
+     - Considera desplegar en Render que tiene límites de tiempo más generosos (15-20 minutos)
 
 7. **Error: Deploy command tiene "cd backend && uvicorn ..."**:
    - Aunque `railway.json` y `Procfile` estén correctos, Railway puede tener un Start Command manual configurado en la interfaz web
