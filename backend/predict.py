@@ -13,14 +13,18 @@ from typing import Dict, List, Tuple
 # Cargar las clases
 def load_classes():
     """Carga las clases desde el archivo JSON"""
+    # Obtener el directorio del archivo actual (backend/)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
     # Obtener el directorio base del proyecto (dos niveles arriba desde backend/)
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    # Intentar desde diferentes ubicaciones
+    # Intentar desde diferentes ubicaciones (prioridad: local, luego parent, luego raíz)
     class_paths = [
-        os.path.join(base_dir, 'classes.json'),  # Raíz del proyecto
-        'classes.json',  # Directorio actual
+        os.path.join(current_dir, 'classes.json'),  # En el mismo directorio que predict.py (backend/)
+        'classes.json',  # Directorio actual de trabajo
+        os.path.join(base_dir, 'classes.json'),  # Raíz del proyecto (si está disponible)
         '../classes.json',  # Un nivel arriba
+        '/app/classes.json',  # En Railway cuando Root Directory es backend
     ]
     
     for path in class_paths:
