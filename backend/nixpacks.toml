@@ -3,11 +3,14 @@
 # IMPORTANTE: Railway ya está en el directorio backend, no hace falta hacer "cd backend"
 
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip"]
+nixPkgs = ["python311", "python311Packages.pip", "git-lfs"]
 
 [phases.install]
 dependsOn = ["setup"]
 cmds = [
+    "# Instalar Git LFS y descargar archivos LFS",
+    "git lfs install || echo 'Git LFS ya instalado o no disponible'",
+    "git lfs pull || echo 'Git LFS pull falló o no hay archivos LFS'",
     "pip3 install --no-cache-dir -r requirements.txt"
 ]
 
