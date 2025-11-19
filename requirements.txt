@@ -1,0 +1,4 @@
+# Requirements file para Nixpacks (raíz del proyecto)
+# Intencionalmente vacío: las dependencias reales del backend están en backend/requirements.txt
+
+
