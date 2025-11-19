@@ -1,0 +1,9 @@
+# Git LFS - Para archivos grandes de modelos
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.pkl filter=lfs diff=lfs merge=lfs -text
+
+# Mantener estos archivos específicos con LFS
+dataset/best_model.pth filter=lfs diff=lfs merge=lfs -text
+best_model.pth filter=lfs diff=lfs merge=lfs -text
+cnn_model.pkl filter=lfs diff=lfs merge=lfs -text
+

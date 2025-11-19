@@ -1,0 +1,206 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ============================================
+# Dependencias
+# ============================================
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+# NOTA: package-lock.json y yarn.lock SÍ deben estar en el repo
+
+# ============================================
+# Next.js
+# ============================================
+/.next/
+/out/
+.next/
+out/
+
+# ============================================
+# Producción
+# ============================================
+/build
+/dist
+
+# ============================================
+# Python / Backend
+# ============================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+backend/venv/
+backend/env/
+backend/ENV/
+
+# Python cache
+.Python
+*.egg-info/
+.eggs/
+*.egg
+
+# PyTorch / ML - Modelos entrenados (grandes, usando Git LFS)
+# NOTA: Los modelos .pth y .pkl se manejan con Git LFS (ver .gitattributes)
+# Solo ignoramos otros formatos de modelos que no usamos
+*.h5
+*.hdf5
+*.ckpt
+*.pt
+
+# Excepciones: Mantener modelos necesarios para producción (manejados con Git LFS)
+# Estos archivos NO deben estar aquí porque se rastrean con Git LFS
+# Si NO usas Git LFS, descomenta las siguientes líneas:
+# *.pth
+# *.pkl
+# !dataset/best_model.pth
+# !best_model.pth
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# ============================================
+# Datasets y Archivos Grandes
+# ============================================
+# Dataset completo (muy grande para Git)
+/dataset/New Plant Diseases Dataset(Augmented)/
+/dataset/train/
+/dataset/valid/
+/dataset/test/
+
+# Mantener solo el modelo necesario
+# Descomenta la siguiente línea si quieres ignorar TODOS los modelos
+# !dataset/best_model.pth  # Mantener este modelo si lo necesitas
+
+# ============================================
+# Variables de Entorno
+# ============================================
+.env
+.env.local
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+backend/.env.local
+
+# ============================================
+# Logs
+# ============================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.log.*
+logs/
+*.log.*
+
+# ============================================
+# IDEs y Editores
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# Sistemas Operativos
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# Plataformas de Despliegue
+# ============================================
+# Vercel
+.vercel
+
+# Netlify
+.netlify
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+next-env.d.ts
+
+# ============================================
+# Archivos Temporales
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+
+# ============================================
+# Archivos de Seguridad
+# ============================================
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets
+
+# ============================================
+# Misceláneos
+# ============================================
+.cache/
+.temp/
+tmp/
+temp/
+*.pid
+*.seed
+*.pid.lock
+

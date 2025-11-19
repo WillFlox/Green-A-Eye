@@ -1,0 +1,20 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env.local
+.env*.local
+.vscode
+.idea
+*.log
+.DS_Store
+__pycache__
+*.pyc
+.venv
+venv
+ENV
+env
+dataset/New Plant Diseases Dataset(Augmented)
+dataset/test
+
