@@ -86,6 +86,24 @@ def load_model(model_path: str = None):
             else:
                 raise FileNotFoundError(f"No se encontró el archivo best_model.pth. Buscado en: {model_paths}")
         
+        # Verificar que el archivo NO es un puntero de Git LFS
+        # Los punteros LFS son archivos pequeños (<1KB) que empiezan con "version https://git-lfs.github.com/spec/v1"
+        try:
+            file_size = os.path.getsize(model_path)
+            if file_size < 1024:  # Menos de 1KB, probablemente es un puntero LFS
+                with open(model_path, 'r', encoding='utf-8') as f:
+                    first_line = f.readline().strip()
+                    if first_line == "version https://git-lfs.github.com/spec/v1":
+                        raise ValueError(
+                            f"ERROR: El archivo {model_path} es un puntero de Git LFS, no el archivo real.\n"
+                            f"El archivo debe descargarse con 'git lfs pull' durante el build.\n"
+                            f"Tamaño del archivo: {file_size} bytes (debería ser ~90MB+).\n"
+                            f"Verifica que Git LFS esté configurado correctamente en Railway."
+                        )
+        except (UnicodeDecodeError, OSError):
+            # Si no es texto, probablemente es el archivo real, continuar
+            pass
+        
         # Cargar los pesos
         # PyTorch 2.6+ cambió el valor por defecto de weights_only a True
         # Necesitamos establecerlo en False para cargar modelos antiguos

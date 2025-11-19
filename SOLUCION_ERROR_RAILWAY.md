@@ -27,11 +27,14 @@ El problema puede tener dos causas:
 
 ### Paso 2: Configurar el Root Directory
 
+**⚠️ IMPORTANTE**: Para que Railway tenga acceso a `best_model.pth` y `classes.json` que están en la raíz del proyecto, debes configurar el Root Directory como la raíz del proyecto:
+
 1. En la sección de configuración, busca **Root Directory** (Directorio Raíz)
 2. Haz clic en el campo o en "Change" si está disponible
-3. Establece el valor como: `backend`
-4. **⚠️ IMPORTANTE**: También asegúrate de que **Builder** esté configurado como **NIXPACKS** (no Dockerfile)
-5. Haz clic en **Save** o **Update**
+3. **Establece el valor como:** `.` (punto) o déjalo vacío (esto significa la raíz del proyecto)
+4. **NOTA**: Si tienes `backend` configurado, cámbialo a `.` (punto) o vacío
+5. **⚠️ IMPORTANTE**: También asegúrate de que **Builder** esté configurado como **NIXPACKS** (no Dockerfile)
+6. Haz clic en **Save** o **Update**
 
 ### Paso 3: Configurar el Builder
 
@@ -49,13 +52,14 @@ El problema puede tener dos causas:
 4. Railway debería detectar automáticamente el `nixpacks.toml` desde el directorio `backend`
 5. Guarda los cambios
 
-### Paso 5: Configurar el Start Command (CRÍTICO)
+### Paso 5: Configurar el Start Command
 
 1. Busca **Start Command** en Settings
-2. **⚠️ IMPORTANTE**: Si ves `cd backend && uvicorn ...`, elimínalo completamente
-3. Establece: `uvicorn api:app --host 0.0.0.0 --port $PORT` (sin `cd backend`)
+2. **Si Root Directory es `.` (raíz)**: Establece: `cd backend && uvicorn api:app --host 0.0.0.0 --port $PORT`
+3. **Si Root Directory es `backend`**: Establece: `uvicorn api:app --host 0.0.0.0 --port $PORT` (sin `cd backend`)
 4. O déjalo vacío si ya está configurado correctamente en `railway.json` o `Procfile`
 5. **NOTA**: Railway puede estar usando un Start Command manual en lugar del de `railway.json` o `Procfile`
+6. **RECOMENDADO**: Usa Root Directory = `.` (raíz) y Start Command = `cd backend && uvicorn api:app --host 0.0.0.0 --port $PORT`
 
 ### Paso 6: Configurar Variables de Entorno
 
@@ -229,23 +233,60 @@ Si ves este error, significa que Railway está usando el Dockerfile (aunque el R
 
 9. **Error: "No se encontró el archivo best_model.pth"**:
    - Este error ocurre cuando Railway tiene el Root Directory configurado como `backend`, pero `best_model.pth` está en `dataset/best_model.pth` en la raíz del proyecto, fuera de `backend/`
-   - **Solución**: 
-     - El código en `predict.py` ha sido actualizado para buscar `best_model.pth` en múltiples ubicaciones, incluyendo `/app/dataset/best_model.pth` (Railway), `backend/dataset/best_model.pth`, y `backend/best_model.pth`
-     - El archivo `backend/nixpacks.toml` intenta copiar `best_model.pth` desde el directorio padre durante el build si está disponible
-     - **⚠️ IMPORTANTE**: Asegúrate de que `best_model.pth` esté en tu repositorio Git:
-       - Verifica que NO esté en `.gitignore` (o está comentado)
-       - Si está en `.gitignore`, descoméntalo o elimínalo de `.gitignore`
-       - Haz commit y push del archivo al repositorio:
-         ```bash
-         git add dataset/best_model.pth best_model.pth
-         git commit -m "Agregar best_model.pth al repositorio"
-         git push
-         ```
-     - Si el archivo es muy grande (>100MB), considera usar **Git LFS** (ver `CONFIGURAR_GIT_LFS.md`)
-     - Si el archivo NO está en el repositorio, Railway NO lo tendrá disponible
-     - Redesplega el servicio después de agregar el archivo al repositorio
+   - **✅ SOLUCIÓN MÁS SIMPLE Y RECOMENDADA**: Copia el modelo a `backend/best_model.pth`:
+     1. Descarga el archivo real de Git LFS localmente:
+        ```bash
+        git lfs pull --include="dataset/best_model.pth"
+        ```
+     2. Copia el archivo a `backend/`:
+        ```bash
+        # Windows
+        Copy-Item "dataset\best_model.pth" -Destination "backend\best_model.pth" -Force
+        # Linux/Mac
+        cp dataset/best_model.pth backend/best_model.pth
+        ```
+     3. Agrega el archivo al repositorio con Git LFS:
+        ```bash
+        git add backend/best_model.pth
+        git commit -m "Agregar best_model.pth a backend/ para Railway"
+        git push
+        ```
+     4. El archivo `.gitattributes` ya está actualizado para incluir `backend/best_model.pth` en Git LFS
+     5. Redesplega el servicio en Railway
+     6. **Ventaja**: Funciona tanto si Root Directory es `backend` como si es la raíz
+     - **📖 Para instrucciones detalladas, consulta: [COPIAR_MODELO_A_BACKEND.md](COPIAR_MODELO_A_BACKEND.md)**
+   - **Alternativa: Cambiar Root Directory a la raíz** (si prefieres mantener el modelo solo en `dataset/`):
+     1. Ve a Railway Settings → Root Directory
+     2. Cambia de `backend` a `.` (punto) o déjalo vacío
+     3. Cambia el Start Command a: `cd backend && uvicorn api:app --host 0.0.0.0 --port $PORT`
+     4. Esto permite que Railway tenga acceso a todos los archivos del repositorio, incluyendo `dataset/best_model.pth`
+     5. El archivo `nixpacks.toml` en la raíz está configurado para descargar Git LFS y construir desde la raíz
+     6. Guarda y redesplega
 
-10. **Contacta al soporte de Railway**:
+10. **Error: "invalid load key, 'v'" / "Weights only load failed"**:
+   - Este error puede ocurrir por dos razones:
+     - **Razón 1**: PyTorch 2.6+ cambió el valor por defecto de `weights_only` de `False` a `True`
+       - **Solución**: El código ya usa `weights_only=False` en `torch.load()`
+     - **Razón 2**: El archivo `best_model.pth` es un puntero de Git LFS, no el archivo real
+       - **Síntomas**: El error "invalid load key, 'v'" significa que está intentando leer el 'v' de "version https://git-lfs.github.com/spec/v1"
+       - **Causa**: Git LFS no descargó el archivo real durante el build, solo está el puntero (~150 bytes)
+       - **Solución**:
+         1. Verifica que Git LFS esté instalado correctamente en Railway
+         2. Los archivos `nixpacks.toml` están configurados para:
+            - Instalar Git LFS
+            - Ejecutar `git lfs pull` durante el build
+            - Verificar que el archivo descargado sea el real (>1KB) y no un puntero
+         3. **Si Root Directory = `backend`**: 
+            - El `backend/nixpacks.toml` intenta ir a la raíz (`cd ..`) para ejecutar `git lfs pull`
+            - Puede que no tenga acceso al directorio padre
+            - **Recomendación**: Cambia Root Directory a `.` (raíz) para mejor acceso a Git LFS
+         4. **Si Root Directory = `.` (raíz)**:
+            - El `nixpacks.toml` en la raíz ejecuta `git lfs pull` correctamente
+            - Verifica los logs del build para ver si `git lfs pull` se ejecutó correctamente
+         5. **Alternativa más simple**: Copia el modelo a `backend/best_model.pth` en el repositorio (ver error #9)
+   - El código ahora detecta automáticamente si el archivo es un puntero LFS y muestra un error descriptivo
+
+11. **Contacta al soporte de Railway**:
    - Si nada funciona, contacta a Railway con los logs de error
 
 ---
