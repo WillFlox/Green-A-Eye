@@ -1,0 +1,22 @@
+# Configuración de Nixpacks para Railway
+# Este archivo fuerza a Railway a usar NIXPACKS y construir solo el backend
+
+[phases.setup]
+nixPkgs = ["python311", "pip", "nixpkgs.python311Packages.pip"]
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = [
+    "pip install --no-cache-dir -r backend/requirements.txt"
+]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["echo 'Backend build complete'"]
+
+[start]
+cmd = "cd backend && uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"
+
+[variables]
+PYTHON_VERSION = "3.11"
+

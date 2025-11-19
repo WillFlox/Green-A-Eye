@@ -1,0 +1,27 @@
+# Railway ignore file
+# Esto le dice a Railway que ignore estos archivos/directorios
+
+# Ignorar todo excepto backend
+/*
+!backend/
+
+# Ignorar Dockerfile de la raíz si existe
+Dockerfile
+docker-compose.yml
+
+# Ignorar archivos de frontend
+package.json
+package-lock.json
+node_modules/
+.next/
+app/
+components/
+lib/
+public/
+*.config.ts
+*.config.js
+tailwind.config.ts
+postcss.config.mjs
+tsconfig.json
+next-env.d.ts
+

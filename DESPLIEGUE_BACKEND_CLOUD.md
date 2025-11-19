@@ -29,8 +29,14 @@ Asegúrate de que tu código esté en GitHub, GitLab o Bitbucket.
 1. Haz clic en "New Project"
 2. Selecciona "Deploy from GitHub repo"
 3. Selecciona tu repositorio "Green A-Eye"
-4. Railway detectará automáticamente el archivo `railway.json`
-5. Haz clic en "Deploy"
+4. **⚠️ IMPORTANTE**: En la configuración del servicio, necesitas establecer el **Root Directory** como `backend`
+   - Haz clic en el servicio que se crea
+   - Ve a **Settings** (Configuración)
+   - Busca **Root Directory** (Directorio Raíz)
+   - Establece: `backend`
+   - Guarda los cambios
+5. Railway detectará automáticamente Python desde el directorio backend
+6. El servicio comenzará a desplegarse automáticamente
 
 ### Paso 4: Configurar variables de entorno
 
